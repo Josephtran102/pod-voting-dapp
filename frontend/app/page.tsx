@@ -258,12 +258,12 @@ export default function VotingDapp() {
           <div style={styles.logoSection}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
-              src="/images/pod-dark.svg" 
+              src="/images/pod-dark_green.svg" 
               alt="Pod Logo" 
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '64px', height: '64px' }}
             />
             <h1 style={styles.appTitle}>
-              <span style={{ color: '#00ff88' }}>Pod</span> Voting dApp
+              <span style={{ color: '#ffffff' }}> Improvement Proposals</span> 
             </h1>
           </div>
           
@@ -566,7 +566,7 @@ export default function VotingDapp() {
             <img 
               src="/images/pod-dark.svg" 
               alt="Pod Logo" 
-              style={{ width: '80px', height: '80px', marginBottom: '2rem' }}
+              style={{ width: '200px', height: '200px', marginBottom: '0.2rem' }}
             />
             <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
               Welcome to <span style={{ color: '#00ff88' }}>Pod Voting</span>
@@ -591,7 +591,7 @@ export default function VotingDapp() {
       {/* Footer */}
       <footer style={styles.footer}>
         <p style={{ fontSize: '0.875rem', color: '#a0a0a0' }}>
-          © {new Date().getFullYear()} Pod Voting • Built with 💚
+          © {new Date().getFullYear()} Pod Voting • Built with 💚 | J•Node | www.j-node.net
         </p>
       </footer>
 
