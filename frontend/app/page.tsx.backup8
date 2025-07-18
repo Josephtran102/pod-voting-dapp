@@ -1,7 +1,7 @@
 // app/page.tsx
 'use client'
 import { useState, useEffect } from 'react'
-import { useContract, VoteType } from '../hooks/useContract'
+import { useContract } from '../hooks/useContract'
 import { VOTING_ADDRESS } from '../constants/contract'
 
 export default function VotingDapp() {
@@ -47,13 +47,11 @@ export default function VotingDapp() {
     }
   }
 
-  const handleVote = async (proposalId: number, voteType: VoteType) => {
+  const handleVote = async (proposalId: number) => {
     setTxPending(true)
     try {
-      await vote(proposalId, voteType)
-      const voteTypeStr = voteType === VoteType.Yes ? 'YES' : 
-                        voteType === VoteType.No ? 'NO' : 'ABSTAIN'
-      showSuccessNotification(`Voted ${voteTypeStr} successfully! ✅`)
+      await vote(proposalId)
+      showSuccessNotification('Vote submitted successfully! ✅')
     } catch {
       // Error handled in hook
     } finally {
@@ -258,10 +256,10 @@ export default function VotingDapp() {
             <img 
               src="/images/pod-dark.svg" 
               alt="Pod Logo" 
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '64px', height: '64px' }}
             />
             <h1 style={styles.appTitle}>
-              <span style={{ color: '#00ff88' }}>Pod</span> Voting dApp
+              <span style={{ color: '#00ff88' }}>Voting dApp</span> 
             </h1>
           </div>
           
@@ -314,8 +312,8 @@ export default function VotingDapp() {
               {[
                 { label: 'Total Proposals', value: proposals.length, accent: false },
                 { label: 'Active Proposals', value: proposals.filter(p => Date.now() / 1000 < p.endTime).length, accent: true },
-                { label: 'Total Votes', value: proposals.reduce((sum, p) => sum + p.totalVotes, 0), accent: false },
-                { label: 'Your Votes', value: proposals.filter(p => p.userVote && p.userVote !== VoteType.NotVoted).length, accent: true }
+                { label: 'Total Votes', value: proposals.reduce((sum, p) => sum + p.voteCount, 0), accent: false },
+                { label: 'Your Votes', value: proposals.filter(p => p.hasVoted).length, accent: true }
               ].map((stat, index) => (
                 <div key={index} style={styles.statCard}>
                   <div style={{ fontSize: '0.875rem', color: '#a0a0a0', marginBottom: '0.5rem' }}>
@@ -393,7 +391,6 @@ export default function VotingDapp() {
                   ) : (
                     [...proposals].sort((a, b) => b.id - a.id).map((proposal) => {
                       const isActive = Date.now() / 1000 < proposal.endTime
-                      const hasVoted = proposal.userVote !== undefined && proposal.userVote !== VoteType.NotVoted
                       
                       return (
                         <div key={proposal.id} style={styles.proposalCard}>
@@ -406,149 +403,33 @@ export default function VotingDapp() {
                                 Proposal #{proposal.id} • {formatTimeRemaining(proposal.endTime)}
                               </p>
                             </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#00ff88' }}>
+                                {proposal.voteCount}
+                              </div>
+                              <div style={{ fontSize: '0.75rem', color: '#a0a0a0' }}>votes</div>
+                            </div>
                           </div>
                           
-                          {/* Vote Results */}
-                          <div style={{ marginBottom: '1rem' }}>
-                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.75rem', color: '#a0a0a0', marginBottom: '0.25rem' }}>Yes</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#00ff88' }}>
-                                  {proposal.yesVotes}
-                                </div>
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.75rem', color: '#a0a0a0', marginBottom: '0.25rem' }}>No</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ff4444' }}>
-                                  {proposal.noVotes}
-                                </div>
-                              </div>
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontSize: '0.75rem', color: '#a0a0a0', marginBottom: '0.25rem' }}>Abstain</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ffaa00' }}>
-                                  {proposal.abstainVotes}
-                                </div>
-                              </div>
-                              <div style={{ flex: 1, textAlign: 'right' }}>
-                                <div style={{ fontSize: '0.75rem', color: '#a0a0a0', marginBottom: '0.25rem' }}>Total</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>
-                                  {proposal.totalVotes}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Vote Buttons */}
-                          {hasVoted ? (
-                            <div style={{
-                              padding: '0.75rem',
-                              backgroundColor: '#1a1a1a',
+                          <button
+                            onClick={() => handleVote(proposal.id)}
+                            disabled={!isActive || proposal.hasVoted || loading || txPending}
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
+                              backgroundColor: proposal.hasVoted || !isActive ? '#1a1a1a' : '#00ff88',
+                              color: proposal.hasVoted || !isActive ? '#666' : '#0a0a0a',
+                              border: 'none',
                               borderRadius: '0.375rem',
-                              textAlign: 'center',
                               fontSize: '0.875rem',
-                              color: '#00ff88'
-                            }}>
-                              ✓ You voted: {
-                                proposal.userVote === VoteType.Yes ? 'YES' :
-                                proposal.userVote === VoteType.No ? 'NO' : 'ABSTAIN'
-                              }
-                            </div>
-                          ) : !isActive ? (
-                            <div style={{
-                              padding: '0.75rem',
-                              backgroundColor: '#1a1a1a',
-                              borderRadius: '0.375rem',
-                              textAlign: 'center',
-                              fontSize: '0.875rem',
-                              color: '#666'
-                            }}>
-                              Voting Ended
-                            </div>
-                          ) : (
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              <button
-                                onClick={() => handleVote(proposal.id, VoteType.Yes)}
-                                disabled={loading || txPending}
-                                style={{
-                                  flex: 1,
-                                  padding: '0.5rem',
-                                  backgroundColor: '#00ff88',
-                                  color: '#0a0a0a',
-                                  border: 'none',
-                                  borderRadius: '0.375rem',
-                                  fontSize: '0.875rem',
-                                  fontWeight: 500,
-                                  cursor: loading || txPending ? 'not-allowed' : 'pointer',
-                                  opacity: loading || txPending ? 0.6 : 1,
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!loading && !txPending) {
-                                    e.currentTarget.style.backgroundColor = '#00cc6a'
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#00ff88'
-                                }}
-                              >
-                                YES
-                              </button>
-                              <button
-                                onClick={() => handleVote(proposal.id, VoteType.No)}
-                                disabled={loading || txPending}
-                                style={{
-                                  flex: 1,
-                                  padding: '0.5rem',
-                                  backgroundColor: '#ff4444',
-                                  color: '#ffffff',
-                                  border: 'none',
-                                  borderRadius: '0.375rem',
-                                  fontSize: '0.875rem',
-                                  fontWeight: 500,
-                                  cursor: loading || txPending ? 'not-allowed' : 'pointer',
-                                  opacity: loading || txPending ? 0.6 : 1,
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!loading && !txPending) {
-                                    e.currentTarget.style.backgroundColor = '#cc3333'
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#ff4444'
-                                }}
-                              >
-                                NO
-                              </button>
-                              <button
-                                onClick={() => handleVote(proposal.id, VoteType.Abstain)}
-                                disabled={loading || txPending}
-                                style={{
-                                  flex: 1,
-                                  padding: '0.5rem',
-                                  backgroundColor: '#ffaa00',
-                                  color: '#0a0a0a',
-                                  border: 'none',
-                                  borderRadius: '0.375rem',
-                                  fontSize: '0.875rem',
-                                  fontWeight: 500,
-                                  cursor: loading || txPending ? 'not-allowed' : 'pointer',
-                                  opacity: loading || txPending ? 0.6 : 1,
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!loading && !txPending) {
-                                    e.currentTarget.style.backgroundColor = '#cc8800'
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor = '#ffaa00'
-                                }}
-                              >
-                                ABSTAIN
-                              </button>
-                            </div>
-                          )}
+                              fontWeight: 500,
+                              cursor: proposal.hasVoted || !isActive ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s',
+                            }}
+                          >
+                            {proposal.hasVoted ? '✓ Already Voted' : 
+                             !isActive ? 'Voting Ended' : 'Vote'}
+                          </button>
                         </div>
                       )
                     })
