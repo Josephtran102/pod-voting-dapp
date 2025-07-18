@@ -2,6 +2,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useContract, VoteType } from '../hooks/useContract'
+import { VOTING_ADDRESS } from '../constants/contract'
 
 export default function VotingDapp() {
   const { proposals, createProposal, vote, loading, connectWallet, connected, refreshProposals } = useContract()
@@ -89,8 +90,6 @@ export default function VotingDapp() {
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
-
-  const contractAddress = '0xb064c391AfFbAd2428744d2996bBD273785c2A84' // Pod Voting Contract
 
   const styles = {
     container: {
@@ -256,7 +255,6 @@ export default function VotingDapp() {
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src="/images/pod-dark.svg" 
               alt="Pod Logo" 
@@ -317,7 +315,7 @@ export default function VotingDapp() {
                 { label: 'Total Proposals', value: proposals.length, accent: false },
                 { label: 'Active Proposals', value: proposals.filter(p => Date.now() / 1000 < p.endTime).length, accent: true },
                 { label: 'Total Votes', value: proposals.reduce((sum, p) => sum + p.totalVotes, 0), accent: false },
-                { label: 'Your Votes', value: proposals.filter(p => p.userVote !== undefined && p.userVote !== VoteType.NotVoted).length, accent: true }
+                { label: 'Your Votes', value: proposals.filter(p => p.userVote && p.userVote !== VoteType.NotVoted).length, accent: true }
               ].map((stat, index) => (
                 <div key={index} style={styles.statCard}>
                   <div style={{ fontSize: '0.875rem', color: '#a0a0a0', marginBottom: '0.5rem' }}>
@@ -562,7 +560,6 @@ export default function VotingDapp() {
         ) : (
           /* Welcome Screen */
           <div style={styles.welcomeContainer}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src="/images/pod-dark.svg" 
               alt="Pod Logo" 
