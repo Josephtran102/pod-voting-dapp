@@ -89,136 +89,287 @@ export default function VotingDapp() {
     return `${address.slice(0, 6)}...${address.slice(-4)}`
   }
 
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      backgroundColor: '#0a0a0a',
+      color: '#ffffff',
+    },
+    header: {
+      position: 'sticky' as const,
+      top: 0,
+      zIndex: 40,
+      backdropFilter: 'blur(12px)',
+      backgroundColor: 'rgba(26, 26, 26, 0.9)',
+      borderBottom: '1px solid #333',
+    },
+    headerContent: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '0 2rem',
+      height: '64px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    logoSection: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+    },
+    logo: {
+      width: '40px',
+      height: '40px',
+      backgroundColor: '#00ff88',
+      borderRadius: '50%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: '20px',
+      fontWeight: 'bold',
+      color: '#0a0a0a',
+    },
+    appTitle: {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+    },
+    networkBadge: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.5rem 1rem',
+      backgroundColor: '#252525',
+      border: '1px solid #333',
+      borderRadius: '0.5rem',
+      fontSize: '0.875rem',
+    },
+    statusDot: {
+      width: '8px',
+      height: '8px',
+      backgroundColor: '#00ff88',
+      borderRadius: '50%',
+      animation: 'pulse 2s infinite',
+    },
+    connectButton: {
+      padding: '0.625rem 1.5rem',
+      backgroundColor: '#00ff88',
+      color: '#0a0a0a',
+      border: 'none',
+      borderRadius: '0.5rem',
+      fontWeight: 500,
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+    },
+    mainContainer: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '2rem',
+    },
+    statsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+      gap: '1.5rem',
+      marginBottom: '2rem',
+    },
+    statCard: {
+      position: 'relative' as const,
+      padding: '1.5rem',
+      backgroundColor: '#252525',
+      border: '1px solid #333',
+      borderRadius: '0.75rem',
+      transition: 'all 0.3s',
+    },
+    contentGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
+      gap: '2rem',
+      marginBottom: '2rem',
+    },
+    contentCard: {
+      padding: '2rem',
+      backgroundColor: '#252525',
+      border: '1px solid #333',
+      borderRadius: '0.75rem',
+      transition: 'all 0.3s',
+    },
+    input: {
+      width: '100%',
+      padding: '0.75rem 1rem',
+      backgroundColor: '#1a1a1a',
+      border: '1px solid #333',
+      borderRadius: '0.5rem',
+      color: '#ffffff',
+      fontSize: '1rem',
+      marginBottom: '1rem',
+    },
+    proposalCard: {
+      padding: '1rem',
+      backgroundColor: '#1a1a1a',
+      border: '1px solid #333',
+      borderRadius: '0.5rem',
+      marginBottom: '0.75rem',
+      transition: 'all 0.2s',
+    },
+    notification: {
+      position: 'fixed' as const,
+      top: '80px',
+      right: '2rem',
+      padding: '1rem 1.5rem',
+      backgroundColor: '#00ff88',
+      color: '#0a0a0a',
+      borderRadius: '0.5rem',
+      fontWeight: 500,
+      boxShadow: '0 4px 12px rgba(0, 255, 136, 0.3)',
+      animation: 'slideIn 0.3s ease',
+      zIndex: 50,
+    },
+    welcomeContainer: {
+      display: 'flex',
+      flexDirection: 'column' as const,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '60vh',
+      textAlign: 'center' as const,
+    },
+    footer: {
+      backgroundColor: '#1a1a1a',
+      borderTop: '1px solid #333',
+      padding: '1.5rem',
+      textAlign: 'center' as const,
+      marginTop: 'auto',
+    }
+  }
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0a0a0a' }}>
+    <div style={styles.container}>
       {/* Success Notification */}
       {showSuccess && (
-        <div className="fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-in" 
-             style={{ backgroundColor: '#00ff88', color: '#0a0a0a' }}>
-          <p className="font-medium">{successMessage}</p>
+        <div style={styles.notification}>
+          {successMessage}
         </div>
       )}
 
-      {/* Header - Same style as Pod Dashboard */}
-      <header className="sticky top-0 z-40" style={{ backgroundColor: '#1a1a1a', borderBottom: '1px solid #333333' }}>
-        <div className="max-w-[1400px] mx-auto px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              {/* Pod Logo */}
-              <svg className="w-8 h-8" viewBox="0 0 32 32" fill="#00ff88">
-                <circle cx="16" cy="16" r="12" />
-                <text x="16" y="20" textAnchor="middle" fill="#0a0a0a" fontSize="14" fontWeight="bold">P</text>
-              </svg>
-              <div className="flex items-center gap-2 text-2xl">
-                <span style={{ color: '#00ff88' }}>Pod Voting dApp</span>
-              </div>
+      {/* Header */}
+      <header style={styles.header}>
+        <div style={styles.headerContent}>
+          <div style={styles.logoSection}>
+            <img 
+              src="/images/pod-dark.svg" 
+              alt="Pod Logo" 
+              style={{ width: '40px', height: '40px' }}
+            />
+            <h1 style={styles.appTitle}>
+              <span style={{ color: '#00ff88' }}>Pod</span> Voting dApp
+            </h1>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={styles.networkBadge}>
+              <div style={styles.statusDot}></div>
+              <span>Devnet</span>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg" 
-                   style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: '#00ff88' }}></div>
-                <span className="text-sm">Devnet</span>
-              </div>
-              
-              {!connected ? (
+            {!connected ? (
+              <button 
+                onClick={connectWallet}
+                style={styles.connectButton}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00cc6a'
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = '#00ff88'
+                  e.currentTarget.style.transform = 'scale(1)'
+                }}
+              >
+                Connect Wallet
+              </button>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '0.875rem', fontFamily: 'monospace', color: '#00ff88' }}>
+                  {formatAddress(walletAddress)}
+                </span>
                 <button 
-                  onClick={connectWallet}
-                  className="px-4 py-2 rounded-lg font-medium text-sm transition-all"
-                  style={{ backgroundColor: '#00ff88', color: '#0a0a0a' }}
+                  onClick={disconnectWallet}
+                  style={{ fontSize: '0.875rem', color: '#a0a0a0', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#ff4444'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#a0a0a0'}
                 >
-                  Connect Wallet
+                  Disconnect
                 </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-mono" style={{ color: '#00ff88' }}>
-                    {formatAddress(walletAddress)}
-                  </span>
-                  <button 
-                    onClick={disconnectWallet}
-                    className="text-sm hover:text-red-500 transition-colors"
-                    style={{ color: '#a0a0a0' }}
-                  >
-                    Disconnect
-                  </button>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-[1400px] mx-auto px-8 py-8">
+      <main style={styles.mainContainer}>
         {connected ? (
           <>
-            {/* Stats Grid - Same as Pod Dashboard */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="p-6 rounded-xl" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <div className="text-sm mb-2" style={{ color: '#a0a0a0' }}>Total Proposals</div>
-                <div className="text-3xl font-bold">{proposals.length}</div>
-              </div>
-              <div className="p-6 rounded-xl" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <div className="text-sm mb-2" style={{ color: '#a0a0a0' }}>Active Proposals</div>
-                <div className="text-3xl font-bold" style={{ color: '#00ff88' }}>
-                  {proposals.filter(p => Date.now() / 1000 < p.endTime).length}
+            {/* Stats Grid */}
+            <div style={styles.statsGrid}>
+              {[
+                { label: 'Total Proposals', value: proposals.length, accent: false },
+                { label: 'Active Proposals', value: proposals.filter(p => Date.now() / 1000 < p.endTime).length, accent: true },
+                { label: 'Total Votes', value: proposals.reduce((sum, p) => sum + p.voteCount, 0), accent: false },
+                { label: 'Your Votes', value: proposals.filter(p => p.hasVoted).length, accent: true }
+              ].map((stat, index) => (
+                <div key={index} style={styles.statCard}>
+                  <div style={{ fontSize: '0.875rem', color: '#a0a0a0', marginBottom: '0.5rem' }}>
+                    {stat.label}
+                  </div>
+                  <div style={{ fontSize: '2rem', fontWeight: 'bold', color: stat.accent ? '#00ff88' : '#ffffff' }}>
+                    {stat.value}
+                  </div>
                 </div>
-              </div>
-              <div className="p-6 rounded-xl" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <div className="text-sm mb-2" style={{ color: '#a0a0a0' }}>Total Votes</div>
-                <div className="text-3xl font-bold">
-                  {proposals.reduce((sum, p) => sum + p.voteCount, 0)}
-                </div>
-              </div>
-              <div className="p-6 rounded-xl" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <div className="text-sm mb-2" style={{ color: '#a0a0a0' }}>Your Votes</div>
-                <div className="text-3xl font-bold" style={{ color: '#00ff88' }}>
-                  {proposals.filter(p => p.hasVoted).length}
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Main Grid - 2 columns like Pod Dashboard */}
-            <div className="grid lg:grid-cols-2 gap-8 mb-8">
+            {/* Content Grid */}
+            <div style={styles.contentGrid}>
               {/* Create Proposal */}
-              <div className="rounded-xl p-6" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <h2 className="text-xl font-semibold mb-6">Create Proposal</h2>
+              <div style={styles.contentCard}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem' }}>
+                  Create Proposal
+                </h2>
                 
                 <form onSubmit={handleCreateProposal}>
-                  <div className="mb-4">
-                    <input
-                      type="text"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Enter proposal description..."
-                      className="w-full px-4 py-3 rounded-lg text-white"
-                      style={{ backgroundColor: '#1a1a1a', border: '1px solid #333333' }}
-                      required
-                      disabled={txPending}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Enter proposal description..."
+                    style={styles.input}
+                    required
+                    disabled={txPending}
+                  />
                   
-                  <div className="mb-4">
-                    <select 
-                      value={duration} 
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg text-white"
-                      style={{ backgroundColor: '#1a1a1a', border: '1px solid #333333' }}
-                      disabled={txPending}
-                    >
-                      <option value="3600">1 Hour</option>
-                      <option value="86400">1 Day</option>
-                      <option value="604800">1 Week</option>
-                    </select>
-                  </div>
+                  <select 
+                    value={duration} 
+                    onChange={(e) => setDuration(e.target.value)}
+                    style={{ ...styles.input, cursor: 'pointer' }}
+                    disabled={txPending}
+                  >
+                    <option value="3600">1 Hour</option>
+                    <option value="86400">1 Day</option>
+                    <option value="604800">1 Week</option>
+                  </select>
                   
                   <button 
                     type="submit"
                     disabled={loading || txPending || !description.trim()}
-                    className="w-full py-3 rounded-lg font-medium transition-all"
-                    style={{ 
-                      backgroundColor: loading || txPending || !description.trim() ? '#333333' : '#00ff88',
-                      color: loading || txPending || !description.trim() ? '#666666' : '#0a0a0a'
+                    style={{
+                      width: '100%',
+                      padding: '0.875rem',
+                      backgroundColor: loading || txPending || !description.trim() ? '#333' : '#00ff88',
+                      color: loading || txPending || !description.trim() ? '#666' : '#0a0a0a',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      cursor: loading || txPending || !description.trim() ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
                     }}
                   >
                     {txPending ? 'Creating...' : 'Create Proposal'}
@@ -227,43 +378,53 @@ export default function VotingDapp() {
               </div>
 
               {/* Active Proposals */}
-              <div className="rounded-xl p-6" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-                <h2 className="text-xl font-semibold mb-6">Active Proposals</h2>
+              <div style={styles.contentCard}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '1.5rem' }}>
+                  Active Proposals
+                </h2>
                 
-                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
                   {proposals.length === 0 ? (
-                    <p style={{ color: '#a0a0a0' }}>No proposals yet. Create the first one!</p>
+                    <p style={{ color: '#a0a0a0', textAlign: 'center', padding: '2rem 0' }}>
+                      No proposals yet. Create the first one!
+                    </p>
                   ) : (
-                    proposals.map((proposal) => {
+                    [...proposals].sort((a, b) => b.id - a.id).map((proposal) => {
                       const isActive = Date.now() / 1000 < proposal.endTime
                       
                       return (
-                        <div key={proposal.id} 
-                             className="p-4 rounded-lg transition-all hover:border-green-500/30"
-                             style={{ backgroundColor: '#1a1a1a', border: '1px solid #333333' }}>
-                          <div className="flex justify-between items-start mb-2">
+                        <div key={proposal.id} style={styles.proposalCard}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                             <div>
-                              <h3 className="font-medium">{proposal.description}</h3>
-                              <p className="text-sm mt-1" style={{ color: '#a0a0a0' }}>
+                              <h3 style={{ fontWeight: 500, marginBottom: '0.25rem' }}>
+                                {proposal.description}
+                              </h3>
+                              <p style={{ fontSize: '0.875rem', color: '#a0a0a0' }}>
                                 Proposal #{proposal.id} • {formatTimeRemaining(proposal.endTime)}
                               </p>
                             </div>
-                            <div className="text-right">
-                              <div className="text-lg font-bold" style={{ color: '#00ff88' }}>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '1.125rem', fontWeight: 'bold', color: '#00ff88' }}>
                                 {proposal.voteCount}
                               </div>
-                              <div className="text-xs" style={{ color: '#a0a0a0' }}>votes</div>
+                              <div style={{ fontSize: '0.75rem', color: '#a0a0a0' }}>votes</div>
                             </div>
                           </div>
                           
                           <button
                             onClick={() => handleVote(proposal.id)}
                             disabled={!isActive || proposal.hasVoted || loading || txPending}
-                            className="w-full py-2 rounded-lg text-sm font-medium transition-all"
-                            style={{ 
+                            style={{
+                              width: '100%',
+                              padding: '0.5rem',
                               backgroundColor: proposal.hasVoted || !isActive ? '#1a1a1a' : '#00ff88',
-                              color: proposal.hasVoted || !isActive ? '#666666' : '#0a0a0a',
-                              cursor: proposal.hasVoted || !isActive ? 'not-allowed' : 'pointer'
+                              color: proposal.hasVoted || !isActive ? '#666' : '#0a0a0a',
+                              border: 'none',
+                              borderRadius: '0.375rem',
+                              fontSize: '0.875rem',
+                              fontWeight: 500,
+                              cursor: proposal.hasVoted || !isActive ? 'not-allowed' : 'pointer',
+                              transition: 'all 0.2s',
                             }}
                           >
                             {proposal.hasVoted ? '✓ Already Voted' : 
@@ -276,62 +437,58 @@ export default function VotingDapp() {
                 </div>
               </div>
             </div>
-
-            {/* Contract Info */}
-            <div className="text-center">
-              <p className="text-sm" style={{ color: '#a0a0a0' }}>
-                Contract: <code style={{ color: '#00ff88' }}>{formatAddress(VOTING_ADDRESS)}</code>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(VOTING_ADDRESS)
-                    showSuccessNotification('Address copied!')
-                  }}
-                  className="ml-2 hover:text-green-400 transition-colors"
-                >
-                  📋
-                </button>
-              </p>
-            </div>
           </>
         ) : (
-          /* Not Connected */
-          <div className="max-w-md mx-auto mt-20 text-center">
-            <div className="p-12 rounded-xl" style={{ backgroundColor: '#252525', border: '1px solid #333333' }}>
-              <h2 className="text-3xl font-bold mb-4">Welcome to Pod Voting</h2>
-              <p className="mb-8" style={{ color: '#a0a0a0' }}>
-                Connect your wallet to participate in decentralized governance
-              </p>
-              <button 
-                onClick={connectWallet}
-                className="px-8 py-3 rounded-lg font-medium text-lg transition-all"
-                style={{ backgroundColor: '#00ff88', color: '#0a0a0a' }}
-              >
-                Connect Wallet
-              </button>
-            </div>
+          /* Welcome Screen */
+          <div style={styles.welcomeContainer}>
+            <img 
+              src="/images/pod-dark.svg" 
+              alt="Pod Logo" 
+              style={{ width: '80px', height: '80px', marginBottom: '2rem' }}
+            />
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+              Welcome to <span style={{ color: '#00ff88' }}>Pod Voting</span>
+            </h2>
+            <p style={{ color: '#a0a0a0', fontSize: '1.125rem', marginBottom: '2rem', maxWidth: '500px' }}>
+              Connect your wallet to start creating and voting on proposals in our decentralized voting platform.
+            </p>
+            <button 
+              onClick={connectWallet}
+              style={{
+                ...styles.connectButton,
+                fontSize: '1.125rem',
+                padding: '1rem 2rem',
+              }}
+            >
+              Connect Wallet
+            </button>
           </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto py-8 text-center text-sm" style={{ borderTop: '1px solid #333333', color: '#a0a0a0' }}>
-        <p>
-          Built on <a href="https://pod.network" className="hover:underline" style={{ color: '#00ff88' }}>Pod Network</a> • 
-          <a href="https://github.com/josephtran/pod-voting-tutorial" className="hover:underline ml-2" style={{ color: '#00ff88' }}>GitHub</a> • 
-          <a href="https://docs.v1.pod.network" className="hover:underline ml-2" style={{ color: '#00ff88' }}>Docs</a>
+      <footer style={styles.footer}>
+        <p style={{ fontSize: '0.875rem', color: '#a0a0a0' }}>
+          © {new Date().getFullYear()} Pod Voting • Built with 💚
         </p>
       </footer>
 
-      <style jsx>{`
-        @keyframes slide-in {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
-        }
-        .animate-slide-in { animation: slide-in 0.3s ease-out; }
-        .animate-pulse { animation: pulse 2s infinite; }
+      {/* Animation Styles */}
+      <style jsx global>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
+        }
+        
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>
