@@ -1,0 +1,326 @@
+// app/page.tsx
+'use client'
+import { useState, useEffect } from 'react'
+import { useContract } from '../hooks/useContract'
+import { VOTING_ADDRESS } from '../constants/contract'
+
+export default function VotingDapp() {
+  const { proposals, createProposal, vote, loading, connectWallet, connected, refreshProposals } = useContract()
+  const [description, setDescription] = useState('')
+  const [duration, setDuration] = useState('3600')
+  const [txPending, setTxPending] = useState(false)
+
+  // Auto refresh proposals every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (connected) refreshProposals()
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [connected, refreshProposals])
+
+  const handleCreateProposal = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!description.trim()) return
+    
+    setTxPending(true)
+    try {
+      await createProposal(description, parseInt(duration))
+      setDescription('')
+      // Success notification instead of alert
+    } catch {
+      // Error already handled in hook
+    } finally {
+      setTxPending(false)
+    }
+  }
+
+  const handleVote = async (proposalId: number) => {
+    setTxPending(true)
+    try {
+      await vote(proposalId)
+      // Success notification
+    } catch {
+      // Error already handled
+    } finally {
+      setTxPending(false)
+    }
+  }
+
+  const formatTimeRemaining = (endTime: number) => {
+    const now = Date.now() / 1000
+    const remaining = endTime - now
+    
+    if (remaining <= 0) return 'Ended'
+    
+    const days = Math.floor(remaining / 86400)
+    const hours = Math.floor((remaining % 86400) / 3600)
+    const minutes = Math.floor((remaining % 3600) / 60)
+    
+    if (days > 0) return `${days}d ${hours}h remaining`
+    if (hours > 0) return `${hours}h ${minutes}m remaining`
+    return `${minutes}m remaining`
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a]">
+      {/* Header */}
+      <header className="bg-[#1a1a1a] border-b border-[#333333] sticky top-0 z-50 backdrop-blur-lg bg-opacity-90">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {/* Pod Logo */}
+              <div className="w-12 h-12 bg-[#00ff88] rounded-lg flex items-center justify-center">
+                <span className="text-[#0a0a0a] font-bold text-xl">P</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-[#00ff88]">Pod Voting dApp</h1>
+                <p className="text-[#a0a0a0] text-sm">Decentralized governance on Pod Network</p>
+              </div>
+            </div>
+            
+            {/* Network Status */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-[#252525] rounded-lg border border-[#333333]">
+                <div className="status-dot"></div>
+                <span className="text-sm">Pod DevNet</span>
+              </div>
+              
+              {!connected ? (
+                <button 
+                  onClick={connectWallet}
+                  className="glow-button bg-[#00ff88] hover:bg-[#00cc6a] text-[#0a0a0a] font-bold py-2 px-6 rounded-lg transition-all"
+                >
+                  Connect Wallet
+                </button>
+              ) : (
+                <div className="text-sm text-[#a0a0a0]">
+                  Connected
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Contract Info */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#252525] rounded-full border border-[#333333]">
+            <span className="text-[#a0a0a0] text-sm">Contract:</span>
+            <code className="text-[#00ff88] text-sm font-mono">
+              {VOTING_ADDRESS.slice(0,6)}...{VOTING_ADDRESS.slice(-4)}
+            </code>
+            <button 
+              onClick={() => navigator.clipboard.writeText(VOTING_ADDRESS)}
+              className="text-[#a0a0a0] hover:text-[#00ff88] transition-colors"
+            >
+              📋
+            </button>
+          </div>
+        </div>
+
+        {connected ? (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Create Proposal Card */}
+            <div className="lg:col-span-1">
+              <div className="pod-card rounded-xl p-6">
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                  <span className="text-[#00ff88]">+</span> Create Proposal
+                </h2>
+                
+                <form onSubmit={handleCreateProposal} className="space-y-4">
+                  <div>
+                    <label className="block text-sm text-[#a0a0a0] mb-2">
+                      Proposal Description
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="What should we vote on?"
+                      className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#333333] rounded-lg focus:border-[#00ff88] focus:outline-none transition-colors resize-none"
+                      rows={3}
+                      required
+                      disabled={txPending}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-[#a0a0a0] mb-2">
+                      Voting Duration
+                    </label>
+                    <select 
+                      value={duration} 
+                      onChange={(e) => setDuration(e.target.value)}
+                      className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#333333] rounded-lg focus:border-[#00ff88] focus:outline-none transition-colors"
+                      disabled={txPending}
+                    >
+                      <option value="3600">1 Hour</option>
+                      <option value="86400">1 Day</option>
+                      <option value="604800">1 Week</option>
+                      <option value="2592000">30 Days</option>
+                    </select>
+                  </div>
+                  
+                  <button 
+                    type="submit"
+                    disabled={loading || txPending || !description.trim()}
+                    className="w-full glow-button bg-[#00ff88] hover:bg-[#00cc6a] disabled:bg-[#333333] disabled:text-[#666666] text-[#0a0a0a] font-bold py-3 rounded-lg transition-all disabled:cursor-not-allowed"
+                  >
+                    {txPending ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                        </svg>
+                        Creating...
+                      </span>
+                    ) : 'Create Proposal'}
+                  </button>
+                </form>
+
+                {/* Stats */}
+                <div className="mt-6 pt-6 border-t border-[#333333]">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#a0a0a0]">Total Proposals</span>
+                    <span className="text-[#00ff88] font-mono">{proposals.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mt-2">
+                    <span className="text-[#a0a0a0]">Active Proposals</span>
+                    <span className="text-[#00ff88] font-mono">
+                      {proposals.filter(p => Date.now() / 1000 < p.endTime).length}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Proposals List */}
+            <div className="lg:col-span-2">
+              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <span className="text-[#00ff88]">📊</span> Active Proposals
+              </h2>
+              
+              {loading && proposals.length === 0 ? (
+                <div className="text-center py-12 text-[#a0a0a0]">
+                  <div className="animate-pulse">Loading proposals...</div>
+                </div>
+              ) : proposals.length === 0 ? (
+                <div className="pod-card rounded-xl p-12 text-center">
+                  <p className="text-[#a0a0a0] mb-4">No proposals yet</p>
+                  <p className="text-sm text-[#666666]">Be the first to create a proposal!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {proposals.map((proposal) => {
+                    const isActive = Date.now() / 1000 < proposal.endTime
+                    const votePercentage = proposal.voteCount > 0 ? 100 : 0
+                    
+                    return (
+                      <div key={proposal.id} className="pod-card rounded-xl p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold mb-2">
+                              {proposal.description}
+                            </h3>
+                            <div className="flex items-center gap-4 text-sm text-[#a0a0a0]">
+                              <span>Proposal #{proposal.id}</span>
+                              <span className={isActive ? 'text-[#00ff88]' : 'text-[#ff4444]'}>
+                                {formatTimeRemaining(proposal.endTime)}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-[#00ff88]">
+                              {proposal.voteCount}
+                            </div>
+                            <div className="text-sm text-[#a0a0a0]">votes</div>
+                          </div>
+                        </div>
+                        
+                        {/* Vote Progress Bar */}
+                        <div className="mb-4">
+                          <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-gradient-to-r from-[#00ff88] to-[#00cc6a] transition-all duration-500"
+                              style={{ width: `${Math.min(votePercentage, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                        
+                        <button
+                          onClick={() => handleVote(proposal.id)}
+                          disabled={!isActive || proposal.hasVoted || loading || txPending}
+                          className={`w-full py-2 rounded-lg font-medium transition-all ${
+                            proposal.hasVoted 
+                              ? 'bg-[#1a1a1a] text-[#666666] cursor-not-allowed' 
+                              : isActive
+                                ? 'glow-button bg-[#00ff88] hover:bg-[#00cc6a] text-[#0a0a0a]'
+                                : 'bg-[#1a1a1a] text-[#666666] cursor-not-allowed'
+                          }`}
+                        >
+                          {proposal.hasVoted ? '✓ Already Voted' : 
+                           !isActive ? 'Voting Ended' : 
+                           txPending ? 'Processing...' : 'Vote'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          /* Not Connected State */
+          <div className="max-w-2xl mx-auto text-center py-20">
+            <div className="pod-card rounded-xl p-12">
+              <div className="w-20 h-20 bg-[#00ff88] rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-[#0a0a0a] text-4xl">🗳️</span>
+              </div>
+              <h2 className="text-3xl font-bold mb-4">Welcome to Pod Voting</h2>
+              <p className="text-[#a0a0a0] mb-8">
+                Connect your wallet to create and vote on proposals using Pod Network&apos;s fast, low-cost infrastructure.
+              </p>
+              <button 
+                onClick={connectWallet}
+                className="glow-button bg-[#00ff88] hover:bg-[#00cc6a] text-[#0a0a0a] font-bold py-3 px-8 rounded-lg text-lg transition-all"
+              >
+                Connect Wallet to Continue
+              </button>
+              
+              <div className="grid grid-cols-3 gap-4 mt-12 pt-8 border-t border-[#333333]">
+                <div>
+                  <div className="text-2xl font-bold text-[#00ff88]">&lt;1s</div>
+                  <div className="text-sm text-[#a0a0a0]">Transaction Speed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-[#00ff88]">~$0.001</div>
+                  <div className="text-sm text-[#a0a0a0]">Gas Cost</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-[#00ff88]">100%</div>
+                  <div className="text-sm text-[#a0a0a0]">Decentralized</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="mt-20 border-t border-[#333333] py-8">
+        <div className="max-w-6xl mx-auto px-4 text-center text-sm text-[#a0a0a0]">
+          <p className="mb-2">
+            Built on <a href="https://pod.network" target="_blank" rel="noopener noreferrer" className="text-[#00ff88] hover:underline">Pod Network</a> • 
+            <a href="https://github.com/josephtran/pod-voting-tutorial" target="_blank" rel="noopener noreferrer" className="text-[#00ff88] hover:underline ml-2">View Tutorial</a> • 
+            <a href="https://docs.v1.pod.network" target="_blank" rel="noopener noreferrer" className="text-[#00ff88] hover:underline ml-2">Docs</a>
+          </p>
+          <p className="text-xs text-[#666666]">
+            Pod Network DevNet • Fast Finality • Order-Independent Design
+          </p>
+        </div>
+      </footer>
+    </div>
+  )
+}
