@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Pod Voting dApp",
   description: "Decentralized voting interface powered by blockchain",
+  icons: {
+    icon: '/images/pod_favicon.svg',
+  },
 };
 
 export default function RootLayout({

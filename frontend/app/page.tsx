@@ -256,10 +256,10 @@ export default function VotingDapp() {
             <img 
               src="/images/pod-dark.svg" 
               alt="Pod Logo" 
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '64px', height: '64px' }}
             />
             <h1 style={styles.appTitle}>
-              <span style={{ color: '#00ff88' }}>Pod</span> Voting dApp
+              <span style={{ color: '#00ff88' }}>Voting dApp</span> 
             </h1>
           </div>
           
