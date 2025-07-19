@@ -237,7 +237,7 @@ export default function VotingDapp() {
     footer: {
       backgroundColor: '#1a1a1a',
       borderTop: '1px solid #333',
-      padding: '1.5rem',
+      padding: '1rem',
       textAlign: 'center' as const,
       marginTop: 'auto',
     }
