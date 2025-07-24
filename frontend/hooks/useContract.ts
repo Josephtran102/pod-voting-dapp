@@ -71,7 +71,7 @@ export function useContract() {
                   symbol: 'pETH',
                   decimals: 18
                 },
-                rpcUrls: ['https://rpc.v1.dev.pod.network'],
+                rpcUrls: ['https://rpc.v2.pod.network/'],
                 blockExplorerUrls: ['https://explorer.v1.pod.network']
               }]
             })
