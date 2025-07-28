@@ -1,0 +1,17 @@
+# Foundry / Solidity
+/out
+/cache
+/broadcast
+
+# Node.js
+node_modules
+.next
+dist
+
+# Env files
+.env
+.env.*.local
+
+# IDE
+.vscode
+.DS_Store
