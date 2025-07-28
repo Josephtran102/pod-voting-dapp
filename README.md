@@ -8,6 +8,8 @@ A fully onchain governance system built on [Pod Network](https://pod.network), c
 - ✅ Vote on proposals (For / Against)
 - ✅ Fully onchain, built for blockless Pod Network
 - ✅ Integrated with RainbowKit & wagmi for wallet connection
+
+
 [https://pod-voting.j-node.net/](https://pod-voting.j-node.net/)
 ![Screenshot](frontend/public/images/pod_voting_screenshot.png)
 ---
