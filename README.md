@@ -14,7 +14,7 @@ A fully onchain governance system built on [Pod Network](https://pod.network), c
 ## 📁 Project Structure
 
 ```
-pod-voting-dapp2/
+pod-voting-dapp/
 ├── backend/     # Foundry contracts, deployment and test scripts
 └── frontend/    # Next.js DApp UI with wallet connection
 ```
